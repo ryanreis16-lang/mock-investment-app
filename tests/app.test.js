@@ -50,6 +50,16 @@ function createApp() {
   };
 }
 
+test("restores the dashboard document and keeps the quantity minimum", () => {
+  const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+
+  assert.match(html, /href="styles\.css"/);
+  assert.match(html, /src="app\.js"/);
+  assert.match(html, /id="holdings-body"/);
+  assert.match(html, /id="order-form"/);
+  assert.match(html, /id="quantity"[^>]*min="0\.001"/);
+});
+
 test("rejects zero, negative, and non-finite quantities without changing the account", () => {
   for (const quantity of ["0", "-1", "Infinity"]) {
     const app = createApp();
