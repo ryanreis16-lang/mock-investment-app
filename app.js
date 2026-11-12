@@ -41,7 +41,7 @@ function render() {
       const quote = quoteFor(symbol);
       if (!quote) return "";
       const value = quote.price * position.shares;
-      const returnPct = ((quote.price - position.averageCost) / quote.price) * 100;
+      const returnPct = ((quote.price - position.averageCost) / position.averageCost) * 100;
       return `<tr>
         <td><strong>${symbol}</strong><span class="asset-name">${quote.name}</span></td>
         <td>${position.shares.toFixed(3)}</td>
@@ -86,12 +86,16 @@ document.querySelector("#order-form").addEventListener("submit", (event) => {
   const quote = quoteFor(symbol);
   const total = quote.price * quantity;
 
-  if (!Number.isFinite(quantity) || quantity === 0) {
-    document.querySelector("#order-message").textContent = "Enter a non-zero share amount.";
+  if (!Number.isFinite(quantity) || quantity <= 0) {
+    document.querySelector("#order-message").textContent = "Enter a positive share amount.";
     return;
   }
 
   if (side === "buy") {
+    if (total > account.cash) {
+      document.querySelector("#order-message").textContent = "Not enough cash to complete this purchase.";
+      return;
+    }
     account.cash -= total;
     account.positions[symbol] ??= { shares: 0, averageCost: quote.price };
     const position = account.positions[symbol];
